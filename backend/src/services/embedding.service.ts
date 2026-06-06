@@ -23,3 +23,9 @@ export async function embedDocuments(documents: string[]) {
 
   return embeddings.embedDocuments(documents);
 }
+
+export async function embedQuery(query: string) {
+  const embeddings = createEmbeddingClient();
+
+  return embeddings.embedQuery(query);
+}

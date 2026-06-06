@@ -12,6 +12,14 @@ export type KbChunkWithEmbedding = KbChunk & {
   embedding: number[];
 };
 
+export type KbSearchResult = {
+  id: string;
+  filename: string;
+  section: string;
+  content: string;
+  similarity: number;
+};
+
 export type ReindexStats = {
   filesProcessed: number;
   chunksCreated: number;

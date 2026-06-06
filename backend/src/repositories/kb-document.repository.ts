@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db/prisma.js";
-import type { KbChunkWithEmbedding } from "../types/kb.types.js";
+import type { KbChunkWithEmbedding, KbSearchResult } from "../types/kb.types.js";
 
 function toPgVector(embedding: number[]) {
   return `[${embedding.join(",")}]`;
@@ -31,4 +31,23 @@ export async function insertKbDocuments(chunks: KbChunkWithEmbedding[]) {
 
 export async function countKbDocuments() {
   return prisma.kbDocument.count();
+}
+
+export async function searchKbDocumentsByEmbedding(
+  embedding: number[],
+  limit: number,
+): Promise<KbSearchResult[]> {
+  const queryVector = toPgVector(embedding);
+
+  return prisma.$queryRaw<KbSearchResult[]>`
+    SELECT
+      id::text,
+      filename,
+      section,
+      content,
+      1 - (embedding <=> ${queryVector}::vector) AS similarity
+    FROM kb_documents
+    ORDER BY embedding <=> ${queryVector}::vector
+    LIMIT ${limit}
+  `;
 }
