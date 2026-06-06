@@ -17,3 +17,20 @@ export async function createChatSession(input: CreateChatSessionInput) {
     },
   });
 }
+
+export async function findChatHistoryBySessionId(sessionId: string) {
+  return prisma.chatSession.findMany({
+    where: {
+      sessionId,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+    select: {
+      question: true,
+      answer: true,
+      confidence: true,
+      createdAt: true,
+    },
+  });
+}

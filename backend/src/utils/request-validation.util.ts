@@ -13,6 +13,16 @@ export function readRequiredStringBodyField(request: Request, fieldName: string)
   return value.trim();
 }
 
+export function readRequiredParamField(request: Request, fieldName: string) {
+  const value = request.params[fieldName];
+
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new HttpError(`${fieldName} is required.`, 400);
+  }
+
+  return value.trim();
+}
+
 export function readRequiredEmailBodyField(request: Request, fieldName: string) {
   const value = readRequiredStringBodyField(request, fieldName).toLowerCase();
 
