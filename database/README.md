@@ -17,3 +17,21 @@ Run migrations from the backend workspace after PostgreSQL is available:
 ```bash
 npm run prisma:migrate --workspace backend
 ```
+
+For Docker Compose, PostgreSQL is available at:
+
+```text
+postgresql://postgres:postgres@localhost:5432/kb_support_assistant?schema=public
+```
+
+Start only the database:
+
+```bash
+docker compose up -d postgres
+```
+
+Then run:
+
+```bash
+npm run prisma:deploy --workspace backend
+```
