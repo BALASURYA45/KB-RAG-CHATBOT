@@ -5,6 +5,7 @@ import morgan from "morgan";
 import { adminRouter } from "./routes/admin.route.js";
 import { chatRouter } from "./routes/chat.route.js";
 import { healthRouter } from "./routes/health.route.js";
+import { ticketRouter } from "./routes/ticket.route.js";
 import { errorHandler } from "./middleware/error-handler.middleware.js";
 import { notFoundHandler } from "./middleware/not-found.middleware.js";
 import { env } from "./utils/env.js";
@@ -24,6 +25,7 @@ export function createApp() {
   app.use("/api/admin", adminRouter);
   app.use("/api/chat", chatRouter);
   app.use("/api/health", healthRouter);
+  app.use("/api/tickets", ticketRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

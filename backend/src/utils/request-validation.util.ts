@@ -1,6 +1,8 @@
 import type { Request } from "express";
 import { HttpError } from "./http-error.js";
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function readRequiredStringBodyField(request: Request, fieldName: string) {
   const value = request.body?.[fieldName];
 
@@ -9,6 +11,16 @@ export function readRequiredStringBodyField(request: Request, fieldName: string)
   }
 
   return value.trim();
+}
+
+export function readRequiredEmailBodyField(request: Request, fieldName: string) {
+  const value = readRequiredStringBodyField(request, fieldName).toLowerCase();
+
+  if (!emailPattern.test(value)) {
+    throw new HttpError(`${fieldName} must be a valid email address.`, 400);
+  }
+
+  return value;
 }
 
 export function readOptionalStringBodyField(request: Request, fieldName: string) {
