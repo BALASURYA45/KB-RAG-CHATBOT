@@ -14,6 +14,8 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
+    "@langchain/core": "^1.1.48",
+    "@langchain/openai": "^1.4.7",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "cors": "^2.8.5",
