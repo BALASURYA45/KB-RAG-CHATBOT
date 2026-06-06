@@ -8,6 +8,7 @@ import { healthRouter } from "./routes/health.route.js";
 import { ticketRouter } from "./routes/ticket.route.js";
 import { errorHandler } from "./middleware/error-handler.middleware.js";
 import { notFoundHandler } from "./middleware/not-found.middleware.js";
+import { generalRateLimiter } from "./middleware/rate-limit.middleware.js";
 import { env } from "./utils/env.js";
 
 export function createApp() {
@@ -21,6 +22,7 @@ export function createApp() {
   );
   app.use(express.json({ limit: "1mb" }));
   app.use(morgan(env.nodeEnv === "production" ? "combined" : "dev"));
+  app.use(generalRateLimiter);
 
   app.use("/api/admin", adminRouter);
   app.use("/api/chat", chatRouter);

@@ -15,5 +15,6 @@ export const env = {
     process.env.DATABASE_URL ??
     "postgresql://postgres:postgres@localhost:5432/kb_support_assistant?schema=public",
   openAiApiKey: process.env.OPENAI_API_KEY,
+  adminApiKey: process.env.ADMIN_API_KEY,
   knowledgeBasePath: process.env.KNOWLEDGE_BASE_PATH ?? getDefaultKnowledgeBasePath(),
 };

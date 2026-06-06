@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { getChatHistory } from "../services/chat-history.service.js";
 import { answerChatQuestion } from "../services/chat.service.js";
+import { securityConfig } from "../config/security.config.js";
 import {
   readRequiredParamField,
   readOptionalStringBodyField,
@@ -8,7 +9,9 @@ import {
 } from "../utils/request-validation.util.js";
 
 export async function createChatResponseController(request: Request, response: Response) {
-  const question = readRequiredStringBodyField(request, "question");
+  const question = readRequiredStringBodyField(request, "question", {
+    maxLength: securityConfig.maxQuestionLength,
+  });
   const sessionId = readOptionalStringBodyField(request, "sessionId");
   const chatResponse = await answerChatQuestion({ question, sessionId });
 

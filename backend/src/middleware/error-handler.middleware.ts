@@ -8,9 +8,17 @@ export function errorHandler(
   _next: NextFunction,
 ) {
   const statusCode = error instanceof HttpError ? error.statusCode : 500;
+  const errorName =
+    statusCode === 401
+      ? "Unauthorized"
+      : statusCode === 429
+        ? "Too Many Requests"
+        : statusCode === 500
+          ? "Internal Server Error"
+          : "Bad Request";
 
   response.status(statusCode).json({
-    error: statusCode === 500 ? "Internal Server Error" : "Bad Request",
+    error: errorName,
     message: process.env.NODE_ENV === "production" ? undefined : error.message,
   });
 }

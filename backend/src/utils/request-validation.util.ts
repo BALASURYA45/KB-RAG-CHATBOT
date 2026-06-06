@@ -1,16 +1,27 @@
 import type { Request } from "express";
+import { securityConfig } from "../config/security.config.js";
 import { HttpError } from "./http-error.js";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function readRequiredStringBodyField(request: Request, fieldName: string) {
+export function readRequiredStringBodyField(
+  request: Request,
+  fieldName: string,
+  options: { maxLength?: number } = {},
+) {
   const value = request.body?.[fieldName];
 
   if (typeof value !== "string" || value.trim().length === 0) {
     throw new HttpError(`${fieldName} is required.`, 400);
   }
 
-  return value.trim();
+  const trimmedValue = value.trim();
+
+  if (options.maxLength && trimmedValue.length > options.maxLength) {
+    throw new HttpError(`${fieldName} must be ${options.maxLength} characters or fewer.`, 400);
+  }
+
+  return trimmedValue;
 }
 
 export function readRequiredParamField(request: Request, fieldName: string) {
@@ -20,11 +31,19 @@ export function readRequiredParamField(request: Request, fieldName: string) {
     throw new HttpError(`${fieldName} is required.`, 400);
   }
 
-  return value.trim();
+  const trimmedValue = value.trim();
+
+  if (trimmedValue.length > securityConfig.maxSessionIdLength) {
+    throw new HttpError(`${fieldName} must be ${securityConfig.maxSessionIdLength} characters or fewer.`, 400);
+  }
+
+  return trimmedValue;
 }
 
 export function readRequiredEmailBodyField(request: Request, fieldName: string) {
-  const value = readRequiredStringBodyField(request, fieldName).toLowerCase();
+  const value = readRequiredStringBodyField(request, fieldName, {
+    maxLength: securityConfig.maxEmailLength,
+  }).toLowerCase();
 
   if (!emailPattern.test(value)) {
     throw new HttpError(`${fieldName} must be a valid email address.`, 400);
