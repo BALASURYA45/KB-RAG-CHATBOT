@@ -1,0 +1,22 @@
+{
+  "name": "kb-rag-chatbot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Production-ready Level-0 self-service knowledge base chatbot.",
+  "scripts": {
+    "dev": "npm run dev --workspace backend",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace backend",
+    "build:frontend": "npm run build --workspace frontend",
+    "lint": "npm run lint --workspaces"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

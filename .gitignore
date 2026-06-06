@@ -5,6 +5,9 @@ build/
 .env.*
 !.env.example
 coverage/
+*.tsbuildinfo
+*.d.ts
+frontend/vite.config.js
 .DS_Store
 Thumbs.db
 *.log
