@@ -1,13 +1,30 @@
 import type { Request } from "express";
+import { HttpError } from "./http-error.js";
 
 export function readRequiredStringBodyField(request: Request, fieldName: string) {
   const value = request.body?.[fieldName];
 
   if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`${fieldName} is required.`);
+    throw new HttpError(`${fieldName} is required.`, 400);
   }
 
   return value.trim();
+}
+
+export function readOptionalStringBodyField(request: Request, fieldName: string) {
+  const value = request.body?.[fieldName];
+
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  if (typeof value !== "string") {
+    throw new HttpError(`${fieldName} must be a string.`, 400);
+  }
+
+  const trimmedValue = value.trim();
+
+  return trimmedValue.length > 0 ? trimmedValue : undefined;
 }
 
 export function readOptionalNumberBodyField(request: Request, fieldName: string) {
@@ -20,7 +37,7 @@ export function readOptionalNumberBodyField(request: Request, fieldName: string)
   const numberValue = Number(value);
 
   if (!Number.isFinite(numberValue)) {
-    throw new Error(`${fieldName} must be a number.`);
+    throw new HttpError(`${fieldName} must be a number.`, 400);
   }
 
   return numberValue;
