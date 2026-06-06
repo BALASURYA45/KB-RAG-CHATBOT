@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model KbDocument {
+  id        String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  filename  String                   @db.VarChar(255)
+  section   String                   @db.VarChar(255)
+  content   String                   @db.Text
+  embedding Unsupported("vector(1536)")
+  createdAt DateTime                 @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([filename], map: "kb_documents_filename_idx")
+  @@map("kb_documents")
+}
+
+model SupportTicket {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userEmail String   @map("user_email") @db.VarChar(255)
+  question  String   @db.Text
+  status    String   @default("OPEN") @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@index([status], map: "support_tickets_status_idx")
+  @@map("support_tickets")
+}
+
+model ChatSession {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId  String   @map("session_id") @db.VarChar(255)
+  question   String   @db.Text
+  answer     String   @db.Text
+  confidence Float
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([sessionId], map: "chat_sessions_session_id_idx")
+  @@map("chat_sessions")
+}
