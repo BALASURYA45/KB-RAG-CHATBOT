@@ -4,6 +4,10 @@ import { HttpError } from "../utils/http-error.js";
 
 export function requireAdminKey(request: Request, _response: Response, next: NextFunction) {
   if (!env.adminApiKey) {
+    if (env.nodeEnv === "production") {
+      throw new HttpError("Admin API key is not configured.", 503);
+    }
+
     next();
     return;
   }

@@ -29,3 +29,19 @@ Useful checks:
 curl http://localhost:4000/api/health
 curl http://localhost:4000/api/health/db
 ```
+
+## Deployment
+
+For a server deployment, copy the deployment environment template and update the public URLs/secrets:
+
+```bash
+cp .env.deploy.example .env
+```
+
+Then run:
+
+```bash
+docker compose --env-file .env up --build -d
+```
+
+See `DEPLOYMENT.md` for the full checklist, including Ollama setup and knowledge-base reindexing.
