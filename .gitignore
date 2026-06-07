@@ -7,6 +7,7 @@ build/
 coverage/
 *.tsbuildinfo
 *.d.ts
+!frontend/src/vite-env.d.ts
 frontend/vite.config.js
 .DS_Store
 Thumbs.db
