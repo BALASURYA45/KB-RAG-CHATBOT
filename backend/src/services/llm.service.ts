@@ -1,31 +1,42 @@
-import { ChatOpenAI } from "@langchain/openai";
 import type { LlmAnswer } from "../types/chat.types.js";
 import { env } from "../utils/env.js";
 import { buildRagPrompt, parseLlmAnswer } from "./rag-prompt.service.js";
 
-const chatModel = "gpt-4.1-mini";
-
-function createChatClient() {
-  if (!env.openAiApiKey) {
-    throw new Error("OPENAI_API_KEY is required to generate chat answers.");
-  }
-
-  return new ChatOpenAI({
-    apiKey: env.openAiApiKey,
-    model: chatModel,
-    temperature: 0,
-  });
-}
+type OllamaGenerateResponse = {
+  response?: string;
+};
 
 export async function generateSupportAnswer(input: {
   context: string;
   question: string;
 }): Promise<LlmAnswer> {
-  const chat = createChatClient();
-  const response = await chat.invoke(buildRagPrompt(input));
-  const content = Array.isArray(response.content)
-    ? response.content.map((part) => (typeof part === "string" ? part : "")).join("")
-    : response.content;
+  const response = await fetch(`${env.ollamaBaseUrl}/api/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: env.ollamaChatModel,
+      prompt: buildRagPrompt(input),
+      stream: false,
+      format: "json",
+      options: {
+        temperature: 0,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Ollama chat request failed: ${message}`);
+  }
+
+  const payload = (await response.json()) as OllamaGenerateResponse;
+  const content = payload.response;
+
+  if (!content) {
+    throw new Error("Ollama chat response did not include content.");
+  }
 
   return parseLlmAnswer(content);
 }

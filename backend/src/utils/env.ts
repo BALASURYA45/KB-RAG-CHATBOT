@@ -13,8 +13,10 @@ export const env = {
   frontendOrigin: process.env.FRONTEND_ORIGIN ?? "http://localhost:5173",
   databaseUrl:
     process.env.DATABASE_URL ??
-    "postgresql://postgres:postgres@localhost:5432/kb_support_assistant?schema=public",
-  openAiApiKey: process.env.OPENAI_API_KEY,
+    "postgresql://postgres:postgres@localhost:5433/kb_support_assistant?schema=public",
+  ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434",
+  ollamaChatModel: process.env.OLLAMA_CHAT_MODEL ?? "llama3.2",
+  ollamaEmbeddingModel: process.env.OLLAMA_EMBEDDING_MODEL ?? "nomic-embed-text",
   adminApiKey: process.env.ADMIN_API_KEY,
   knowledgeBasePath: process.env.KNOWLEDGE_BASE_PATH ?? getDefaultKnowledgeBasePath(),
 };

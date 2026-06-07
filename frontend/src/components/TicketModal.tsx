@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, LifeBuoy, Mail, X } from "lucide-react";
 
 type TicketModalProps = {
   question: string;
@@ -26,17 +26,22 @@ export function TicketModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 backdrop-blur-sm">
       <section
         aria-modal="true"
-        className="w-full max-w-lg rounded-lg bg-white shadow-2xl"
+        className="w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-2xl"
         role="dialog"
       >
-        <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-950">Create Support Ticket</h2>
+        <header className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-lg bg-rose-100 text-rose-700">
+              <LifeBuoy className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <h2 className="text-base font-semibold text-slate-950">Create Support Ticket</h2>
+          </div>
           <button
             aria-label="Close"
-            className="grid h-8 w-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+            className="grid h-8 w-8 place-items-center rounded-md text-slate-500 transition hover:bg-white hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-300"
             onClick={onClose}
             title="Close"
             type="button"
@@ -60,19 +65,25 @@ export function TicketModal({
             <label className="block text-sm font-medium text-slate-700" htmlFor="ticket-email">
               Email Address
             </label>
-            <input
-              className="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
-              id="ticket-email"
-              onChange={(event) => setEmail(event.target.value)}
-              type="email"
-              value={email}
-            />
+            <div className="mt-2 flex items-center rounded-md border border-slate-300 bg-white px-3 transition focus-within:border-teal-700 focus-within:ring-2 focus-within:ring-teal-700/15">
+              <Mail className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+              <input
+                className="min-w-0 flex-1 border-0 bg-transparent px-2 py-2.5 text-sm outline-none"
+                id="ticket-email"
+                onChange={(event) => setEmail(event.target.value)}
+                type="email"
+                value={email}
+              />
+            </div>
 
-            <label className="mt-4 block text-sm font-medium text-slate-700" htmlFor="ticket-question">
+            <label
+              className="mt-4 block text-sm font-medium text-slate-700"
+              htmlFor="ticket-question"
+            >
               Question
             </label>
             <textarea
-              className="mt-2 min-h-24 w-full resize-none rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+              className="mt-2 min-h-24 w-full resize-none rounded-md border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm leading-6 text-slate-700 outline-none"
               id="ticket-question"
               readOnly
               value={question}
@@ -81,7 +92,7 @@ export function TicketModal({
             {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
 
             <button
-              className="mt-5 w-full rounded-md bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="mt-5 w-full rounded-md bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 disabled:cursor-not-allowed disabled:bg-slate-300"
               disabled={isSubmitting || email.trim().length === 0}
               type="submit"
             >

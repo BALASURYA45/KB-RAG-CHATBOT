@@ -4,7 +4,14 @@ Production-ready Level-0 self-service knowledge base chatbot.
 
 ## Docker
 
-Set `OPENAI_API_KEY` in your shell or a local `.env` file, then run:
+Install Ollama and pull the local models:
+
+```bash
+ollama pull llama3.2
+ollama pull nomic-embed-text
+```
+
+Then run:
 
 ```bash
 docker compose up --build
@@ -14,7 +21,7 @@ Services:
 
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:4000`
-- PostgreSQL: `localhost:5432`
+- PostgreSQL: `localhost:5433`
 
 Useful checks:
 

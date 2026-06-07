@@ -11,7 +11,7 @@ model KbDocument {
   filename  String                   @db.VarChar(255)
   section   String                   @db.VarChar(255)
   content   String                   @db.Text
-  embedding Unsupported("vector(1536)")
+  embedding Unsupported("vector(768)")
   createdAt DateTime                 @default(now()) @map("created_at") @db.Timestamp(6)
 
   @@index([filename], map: "kb_documents_filename_idx")

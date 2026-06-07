@@ -1,17 +1,28 @@
-import { OpenAIEmbeddings } from "@langchain/openai";
 import { env } from "../utils/env.js";
 
-const embeddingModel = "text-embedding-3-small";
+type OllamaEmbedResponse = {
+  embeddings?: number[][];
+  embedding?: number[];
+};
 
-function createEmbeddingClient() {
-  if (!env.openAiApiKey) {
-    throw new Error("OPENAI_API_KEY is required to generate knowledge base embeddings.");
+async function requestOllamaEmbedding(input: string | string[]) {
+  const response = await fetch(`${env.ollamaBaseUrl}/api/embed`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: env.ollamaEmbeddingModel,
+      input,
+    }),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Ollama embedding request failed: ${message}`);
   }
 
-  return new OpenAIEmbeddings({
-    apiKey: env.openAiApiKey,
-    model: embeddingModel,
-  });
+  return (await response.json()) as OllamaEmbedResponse;
 }
 
 export async function embedDocuments(documents: string[]) {
@@ -19,13 +30,25 @@ export async function embedDocuments(documents: string[]) {
     return [];
   }
 
-  const embeddings = createEmbeddingClient();
+  const payload = await requestOllamaEmbedding(documents);
 
-  return embeddings.embedDocuments(documents);
+  if (!payload.embeddings) {
+    throw new Error("Ollama embedding response did not include embeddings.");
+  }
+
+  return payload.embeddings;
 }
 
 export async function embedQuery(query: string) {
-  const embeddings = createEmbeddingClient();
+  const payload = await requestOllamaEmbedding(query);
 
-  return embeddings.embedQuery(query);
+  if (payload.embedding) {
+    return payload.embedding;
+  }
+
+  if (payload.embeddings?.[0]) {
+    return payload.embeddings[0];
+  }
+
+  throw new Error("Ollama embedding response did not include an embedding.");
 }

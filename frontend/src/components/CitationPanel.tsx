@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileCheck2 } from "lucide-react";
 import type { Citation } from "../types/chat";
 
 type CitationPanelProps = {
@@ -18,10 +18,10 @@ export function CitationPanel({ citations }: CitationPanelProps) {
       <div className="flex flex-wrap gap-2">
         {citations.map((citation) => (
           <span
-            className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700"
+            className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-teal-100 bg-teal-50 px-2.5 py-1.5 text-xs font-medium text-teal-900"
             key={`${citation.article}-${citation.section}`}
           >
-            <FileText className="h-3.5 w-3.5 shrink-0 text-teal-700" aria-hidden="true" />
+            <FileCheck2 className="h-3.5 w-3.5 shrink-0 text-teal-700" aria-hidden="true" />
             <span className="truncate">
               {citation.article} &gt; {citation.section}
             </span>

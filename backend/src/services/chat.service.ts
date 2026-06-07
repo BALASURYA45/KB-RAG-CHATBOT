@@ -4,9 +4,16 @@ import type { ChatRequestInput, ChatResponse } from "../types/chat.types.js";
 import { searchKnowledgeBase } from "./kb-retrieval.service.js";
 import {
   buildCitations,
+  buildExtractiveAnswer,
   buildRetrievedContext,
+  selectCitationResults,
 } from "./rag-prompt.service.js";
-import { calculateConfidence, escalationThreshold } from "./confidence.service.js";
+import {
+  calculateConfidence,
+  citationSimilarityThreshold,
+  directAnswerSimilarityThreshold,
+  escalationThreshold,
+} from "./confidence.service.js";
 import { generateSupportAnswer } from "./llm.service.js";
 
 const fallbackAnswer = "I could not find a reliable answer in the knowledge base.";
@@ -34,11 +41,89 @@ export async function answerChatQuestion(input: ChatRequestInput): Promise<ChatR
     return response;
   }
 
-  const citations = buildCitations(retrievalResults);
-  const llmAnswer = await generateSupportAnswer({
-    context: buildRetrievedContext(retrievalResults),
-    question,
-  });
+  const supportingResults = retrievalResults.filter(
+    (result) => result.similarity >= citationSimilarityThreshold,
+  );
+  const contextResults = supportingResults.length > 0 ? supportingResults : retrievalResults;
+  const citationResults = selectCitationResults(retrievalResults);
+  const citations = buildCitations(citationResults);
+  const topSimilarity = retrievalResults[0]?.similarity ?? 0;
+
+  if (citations.length === 0) {
+    const confidence = calculateConfidence({
+      retrievalResults,
+      llmConfidence: 0,
+    });
+    const response = {
+      answer: fallbackAnswer,
+      confidence,
+      citations: [],
+      escalate: true,
+    };
+
+    await createChatSession({
+      sessionId,
+      question,
+      answer: response.answer,
+      confidence: response.confidence,
+    });
+
+    return response;
+  }
+
+  if (topSimilarity >= directAnswerSimilarityThreshold) {
+    const confidence = calculateConfidence({
+      retrievalResults,
+      llmConfidence: 1,
+    });
+    const answer = buildExtractiveAnswer(citationResults);
+
+    const response = {
+      answer,
+      confidence,
+      citations,
+      escalate: false,
+    };
+
+    await createChatSession({
+      sessionId,
+      question,
+      answer: response.answer,
+      confidence: response.confidence,
+    });
+
+    return response;
+  }
+
+  let llmAnswer;
+
+  try {
+    llmAnswer = await generateSupportAnswer({
+      context: buildRetrievedContext(contextResults),
+      question,
+    });
+  } catch {
+    const confidence = calculateConfidence({
+      retrievalResults,
+      llmConfidence: 0,
+    });
+    const response = {
+      answer: fallbackAnswer,
+      confidence,
+      citations: [],
+      escalate: true,
+    };
+
+    await createChatSession({
+      sessionId,
+      question,
+      answer: response.answer,
+      confidence: response.confidence,
+    });
+
+    return response;
+  }
+
   const confidence = calculateConfidence({
     retrievalResults,
     llmConfidence: llmAnswer.confidence,
