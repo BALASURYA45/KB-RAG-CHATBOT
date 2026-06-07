@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { getChatHistory } from "../services/chat-history.service.js";
-import { answerChatQuestion } from "../services/chat.service.js";
+import { answerChatQuestion, recordAnswerFeedback } from "../services/chat.service.js";
 import { securityConfig } from "../config/security.config.js";
 import {
   readRequiredParamField,
@@ -23,4 +23,14 @@ export async function getChatHistoryController(request: Request, response: Respo
   const history = await getChatHistory(sessionId);
 
   response.status(200).json(history);
+}
+
+export async function updateChatFeedbackController(request: Request, response: Response) {
+  const messageId = readRequiredParamField(request, "messageId");
+  const feedback = readRequiredStringBodyField(request, "feedback", {
+    maxLength: 20,
+  }).toUpperCase();
+  const result = await recordAnswerFeedback({ messageId, feedback });
+
+  response.status(200).json(result);
 }

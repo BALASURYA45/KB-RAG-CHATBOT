@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { createChatSession } from "../repositories/chat-session.repository.js";
+import {
+  createChatSession,
+  updateChatSessionFeedback,
+} from "../repositories/chat-session.repository.js";
 import type { ChatRequestInput, ChatResponse } from "../types/chat.types.js";
+import { HttpError } from "../utils/http-error.js";
 import { searchKnowledgeBase } from "./kb-retrieval.service.js";
 import {
   buildCitations,
@@ -17,6 +21,45 @@ import {
 import { generateSupportAnswer } from "./llm.service.js";
 
 const fallbackAnswer = "I could not find a reliable answer in the knowledge base.";
+const allowedFeedback = new Set(["HELPFUL", "NOT_HELPFUL"]);
+
+export async function recordAnswerFeedback(input: { messageId: string; feedback: string }) {
+  if (!allowedFeedback.has(input.feedback)) {
+    throw new HttpError("feedback must be HELPFUL or NOT_HELPFUL.", 400);
+  }
+
+  const result = await updateChatSessionFeedback({
+    id: input.messageId,
+    feedback: input.feedback,
+  });
+
+  if (result.count === 0) {
+    throw new HttpError("Chat message was not found.", 404);
+  }
+
+  return {
+    messageId: input.messageId,
+    feedback: input.feedback,
+  };
+}
+
+async function saveChatResponse(input: {
+  sessionId: string;
+  question: string;
+  response: Omit<ChatResponse, "messageId">;
+}): Promise<ChatResponse> {
+  const chatSession = await createChatSession({
+    sessionId: input.sessionId,
+    question: input.question,
+    answer: input.response.answer,
+    confidence: input.response.confidence,
+  });
+
+  return {
+    messageId: chatSession.id,
+    ...input.response,
+  };
+}
 
 export async function answerChatQuestion(input: ChatRequestInput): Promise<ChatResponse> {
   const question = input.question.trim();
@@ -31,14 +74,11 @@ export async function answerChatQuestion(input: ChatRequestInput): Promise<ChatR
       escalate: true,
     };
 
-    await createChatSession({
+    return saveChatResponse({
       sessionId,
       question,
-      answer: response.answer,
-      confidence: response.confidence,
+      response,
     });
-
-    return response;
   }
 
   const supportingResults = retrievalResults.filter(
@@ -61,14 +101,11 @@ export async function answerChatQuestion(input: ChatRequestInput): Promise<ChatR
       escalate: true,
     };
 
-    await createChatSession({
+    return saveChatResponse({
       sessionId,
       question,
-      answer: response.answer,
-      confidence: response.confidence,
+      response,
     });
-
-    return response;
   }
 
   if (topSimilarity >= directAnswerSimilarityThreshold) {
@@ -85,14 +122,11 @@ export async function answerChatQuestion(input: ChatRequestInput): Promise<ChatR
       escalate: false,
     };
 
-    await createChatSession({
+    return saveChatResponse({
       sessionId,
       question,
-      answer: response.answer,
-      confidence: response.confidence,
+      response,
     });
-
-    return response;
   }
 
   let llmAnswer;
@@ -114,14 +148,11 @@ export async function answerChatQuestion(input: ChatRequestInput): Promise<ChatR
       escalate: true,
     };
 
-    await createChatSession({
+    return saveChatResponse({
       sessionId,
       question,
-      answer: response.answer,
-      confidence: response.confidence,
+      response,
     });
-
-    return response;
   }
 
   const confidence = calculateConfidence({
@@ -143,12 +174,9 @@ export async function answerChatQuestion(input: ChatRequestInput): Promise<ChatR
         escalate: false,
       };
 
-  await createChatSession({
+  return saveChatResponse({
     sessionId,
     question,
-    answer: response.answer,
-    confidence: response.confidence,
+    response,
   });
-
-  return response;
 }

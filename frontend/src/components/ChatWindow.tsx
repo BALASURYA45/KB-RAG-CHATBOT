@@ -5,8 +5,8 @@ import { MessageList } from "./MessageList";
 import { SuggestedQuestions } from "./SuggestedQuestions";
 import { TicketModal } from "./TicketModal";
 import { useSessionId } from "../hooks/useSessionId";
-import { createSupportTicket, sendChatMessage } from "../services/api";
-import type { ChatMessage } from "../types/chat";
+import { createSupportTicket, sendChatMessage, submitAnswerFeedback } from "../services/api";
+import type { AnswerFeedback, ChatMessage } from "../types/chat";
 
 const initialMessage: ChatMessage = {
   id: "welcome",
@@ -26,6 +26,7 @@ export function ChatWindow() {
   const [ticketError, setTicketError] = useState<string>();
   const [ticketId, setTicketId] = useState<string>();
   const [isTicketSubmitting, setIsTicketSubmitting] = useState(false);
+  const [feedbackSubmittingId, setFeedbackSubmittingId] = useState<string>();
 
   async function handleSend(question: string) {
     if (isLoading) {
@@ -46,6 +47,7 @@ export function ChatWindow() {
       const response = await sendChatMessage({ question, sessionId });
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
+        messageId: response.messageId,
         role: "assistant",
         content: response.answer,
         confidence: response.confidence,
@@ -83,6 +85,36 @@ export function ChatWindow() {
       );
     } finally {
       setIsTicketSubmitting(false);
+    }
+  }
+
+  async function handleFeedback(messageId: string, feedback: AnswerFeedback) {
+    if (!messageId || feedbackSubmittingId) {
+      return;
+    }
+
+    setFeedbackSubmittingId(messageId);
+    setError(undefined);
+
+    try {
+      const result = await submitAnswerFeedback({ messageId, feedback });
+
+      setMessages((current) =>
+        current.map((message) =>
+          message.messageId === result.messageId
+            ? {
+                ...message,
+                feedback: result.feedback,
+              }
+            : message,
+        ),
+      );
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error ? requestError.message : "Unable to save feedback.",
+      );
+    } finally {
+      setFeedbackSubmittingId(undefined);
     }
   }
 
@@ -126,9 +158,11 @@ export function ChatWindow() {
       )}
 
       <MessageList
+        feedbackSubmittingId={feedbackSubmittingId}
         isLoading={isLoading}
         messages={messages}
         onCreateTicket={(question) => setTicketQuestion(question)}
+        onFeedback={handleFeedback}
       />
       <SuggestedQuestions disabled={isLoading} onSelect={handleSend} />
       <ChatInput disabled={isLoading} onSubmit={handleSend} />

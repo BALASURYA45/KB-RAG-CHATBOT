@@ -1,4 +1,4 @@
-import type { ChatApiResponse, TicketResponse } from "../types/chat";
+import type { AnswerFeedback, ChatApiResponse, FeedbackResponse, TicketResponse } from "../types/chat";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
 
@@ -49,4 +49,21 @@ export async function createSupportTicket(input: {
   });
 
   return parseJsonResponse<TicketResponse>(response);
+}
+
+export async function submitAnswerFeedback(input: {
+  messageId: string;
+  feedback: AnswerFeedback;
+}): Promise<FeedbackResponse> {
+  const response = await fetch(`${apiBaseUrl}/api/chat/${input.messageId}/feedback`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      feedback: input.feedback,
+    }),
+  });
+
+  return parseJsonResponse<FeedbackResponse>(response);
 }

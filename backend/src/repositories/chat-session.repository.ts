@@ -18,6 +18,18 @@ export async function createChatSession(input: CreateChatSessionInput) {
   });
 }
 
+export async function updateChatSessionFeedback(input: { id: string; feedback: string }) {
+  return prisma.chatSession.updateMany({
+    where: {
+      id: input.id,
+    },
+    data: {
+      feedback: input.feedback,
+      feedbackAt: new Date(),
+    },
+  });
+}
+
 export async function findChatHistoryBySessionId(sessionId: string) {
   return prisma.chatSession.findMany({
     where: {
@@ -27,9 +39,12 @@ export async function findChatHistoryBySessionId(sessionId: string) {
       createdAt: "asc",
     },
     select: {
+      id: true,
       question: true,
       answer: true,
       confidence: true,
+      feedback: true,
+      feedbackAt: true,
       createdAt: true,
     },
   });

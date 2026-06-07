@@ -1,17 +1,31 @@
 import { MessageBubble } from "./MessageBubble";
-import type { ChatMessage } from "../types/chat";
+import type { AnswerFeedback, ChatMessage } from "../types/chat";
 
 type MessageListProps = {
   messages: ChatMessage[];
   isLoading: boolean;
   onCreateTicket: (question: string) => void;
+  onFeedback: (messageId: string, feedback: AnswerFeedback) => Promise<void>;
+  feedbackSubmittingId?: string;
 };
 
-export function MessageList({ messages, isLoading, onCreateTicket }: MessageListProps) {
+export function MessageList({
+  messages,
+  isLoading,
+  onCreateTicket,
+  onFeedback,
+  feedbackSubmittingId,
+}: MessageListProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto bg-slate-50/80 px-3 py-5 sm:px-5">
       {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} onCreateTicket={onCreateTicket} />
+        <MessageBubble
+          feedbackSubmittingId={feedbackSubmittingId}
+          key={message.id}
+          message={message}
+          onCreateTicket={onCreateTicket}
+          onFeedback={onFeedback}
+        />
       ))}
       {isLoading && (
         <div className="flex items-center gap-3 pl-12 text-sm text-slate-500">

@@ -31,12 +31,14 @@ model SupportTicket {
 }
 
 model ChatSession {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sessionId  String   @map("session_id") @db.VarChar(255)
-  question   String   @db.Text
-  answer     String   @db.Text
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId  String    @map("session_id") @db.VarChar(255)
+  question   String    @db.Text
+  answer     String    @db.Text
   confidence Float
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  feedback   String?   @db.VarChar(20)
+  feedbackAt DateTime? @map("feedback_at") @db.Timestamp(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
   @@index([sessionId], map: "chat_sessions_session_id_idx")
   @@map("chat_sessions")

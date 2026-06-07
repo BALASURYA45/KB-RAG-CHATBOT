@@ -4,6 +4,7 @@ export type Citation = {
 };
 
 export type ChatResponse = {
+  messageId: string;
   answer: string;
   confidence: number;
   citations: Citation[];
