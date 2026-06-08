@@ -5,7 +5,7 @@ This app is ready to deploy with Docker Compose.
 ## 1. Server Requirements
 
 - Docker and Docker Compose
-- An OpenAI API key for hosted chat and embeddings
+- A Gemini API key for hosted chat and embeddings
 
 ## 2. Configure Environment
 
@@ -20,8 +20,10 @@ Update these values:
 - `POSTGRES_PASSWORD`
 - `ADMIN_API_KEY`
 - `FRONTEND_ORIGIN`
-- `OPENAI_API_KEY`
+- `GEMINI_API_KEY`
 - `VITE_API_BASE_URL`
+
+If your server already uses `GEMINI_API`, that name is also supported.
 
 For a VPS using an IP address, examples:
 
@@ -61,7 +63,7 @@ http://YOUR_SERVER_IP:5173
 ## Notes
 
 - Keep `ADMIN_API_KEY` secret.
-- Keep `OPENAI_API_KEY` secret.
+- Keep `GEMINI_API_KEY` secret.
 - Use a reverse proxy with HTTPS for a public deployment.
-- The backend uses `AI_PROVIDER=openai` for deployment.
-- OpenAI embeddings are requested with `OPENAI_EMBEDDING_DIMENSIONS=768` to match the pgvector schema.
+- The backend uses `AI_PROVIDER=gemini` for deployment.
+- Gemini embeddings are requested with `GEMINI_EMBEDDING_DIMENSIONS=768` to match the pgvector schema.

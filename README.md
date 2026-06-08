@@ -4,12 +4,23 @@ Production-ready Level-0 self-service knowledge base chatbot.
 
 ## Docker
 
-Install Ollama and pull the local models:
+Create a local `.env` file and set your Gemini key:
 
 ```bash
-ollama pull llama3.2
-ollama pull nomic-embed-text
+cp .env.deploy.example .env
 ```
+
+Update:
+
+```env
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your-gemini-api-key
+GEMINI_CHAT_MODEL=gemini-2.0-flash
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+GEMINI_EMBEDDING_DIMENSIONS=768
+```
+
+The backend also accepts `GEMINI_API` if that is the variable name you already use.
 
 Then run:
 
@@ -44,4 +55,4 @@ Then run:
 docker compose --env-file .env up --build -d
 ```
 
-See `DEPLOYMENT.md` for the full checklist, including Ollama setup and knowledge-base reindexing.
+See `DEPLOYMENT.md` for the full checklist, including knowledge-base reindexing.
