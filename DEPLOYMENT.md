@@ -5,13 +5,7 @@ This app is ready to deploy with Docker Compose.
 ## 1. Server Requirements
 
 - Docker and Docker Compose
-- Ollama reachable by the backend
-- Models pulled in Ollama:
-
-```bash
-ollama pull llama3.2
-ollama pull nomic-embed-text
-```
+- An OpenAI API key for hosted chat and embeddings
 
 ## 2. Configure Environment
 
@@ -26,7 +20,7 @@ Update these values:
 - `POSTGRES_PASSWORD`
 - `ADMIN_API_KEY`
 - `FRONTEND_ORIGIN`
-- `OLLAMA_BASE_URL`
+- `OPENAI_API_KEY`
 - `VITE_API_BASE_URL`
 
 For a VPS using an IP address, examples:
@@ -67,5 +61,7 @@ http://YOUR_SERVER_IP:5173
 ## Notes
 
 - Keep `ADMIN_API_KEY` secret.
+- Keep `OPENAI_API_KEY` secret.
 - Use a reverse proxy with HTTPS for a public deployment.
-- If Ollama is on another machine, set `OLLAMA_BASE_URL` to that machine's reachable URL.
+- The backend uses `AI_PROVIDER=openai` for deployment.
+- OpenAI embeddings are requested with `OPENAI_EMBEDDING_DIMENSIONS=768` to match the pgvector schema.
